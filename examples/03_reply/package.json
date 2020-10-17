@@ -1,0 +1,16 @@
+{
+  "name": "03_reply",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "oauth": "^0.9.15",
+    "twitter-autohook": "^1.7.2"
+  }
+}

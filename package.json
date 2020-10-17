@@ -1,0 +1,23 @@
+{
+  "name": "choochootweets",
+  "version": "0.0.2",
+  "description": "Coding Train Twitter API helper module.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "twitter",
+    "coding",
+    "train",
+    "api",
+    "bot"
+  ],
+  "author": "Coding Train Community",
+  "license": "ISC",
+  "dependencies": {
+    "ngrok": "^3.3.0",
+    "oauth": "^0.9.15",
+    "twitter-autohook": "^1.7.2"
+  }
+}
