@@ -1,6 +1,6 @@
 {
   "name": "choochootweets",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Coding Train Twitter API helper module.",
   "main": "index.js",
   "scripts": {

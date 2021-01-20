@@ -1,8 +1,8 @@
-const { Autohook, validateWebhook, validateSignature } = require('twitter-autohook');
+const { Autohook, validateWebhook, validateSignature } = require("twitter-autohook");
 
-const url = require('url');
-const ngrok = require('ngrok');
-const http = require('http');
+const url = require("url");
+const ngrok = require("ngrok");
+const http = require("http");
 
 const PORT = process.env.PORT || 4242;
 
@@ -17,7 +17,7 @@ const startServer = (port, auth, tweetHandler) =>
       if (route.query.crc_token) {
         try {
           if (!validateSignature(req.headers, auth, url.parse(req.url).query)) {
-            console.error('Cannot validate webhook signature');
+            console.error("Cannot validate webhook signature");
             return;
           }
         } catch (e) {
@@ -25,19 +25,19 @@ const startServer = (port, auth, tweetHandler) =>
         }
 
         const crc = validateWebhook(route.query.crc_token, auth, res);
-        res.writeHead(200, { 'content-type': 'application/json' });
+        res.writeHead(200, { "content-type": "application/json" });
         res.end(JSON.stringify(crc));
       }
 
-      if (req.method === 'POST' && req.headers['content-type'] === 'application/json') {
-        let body = '';
-        req.on('data', (chunk) => {
+      if (req.method === "POST" && req.headers["content-type"] === "application/json") {
+        let body = "";
+        req.on("data", (chunk) => {
           body += chunk.toString();
         });
-        req.on('end', () => {
+        req.on("end", () => {
           try {
             if (!validateSignature(req.headers, auth, body)) {
-              console.error('Cannot validate webhook signature');
+              console.error("Cannot validate webhook signature");
               return;
             }
           } catch (e) {
@@ -55,35 +55,30 @@ const startServer = (port, auth, tweetHandler) =>
     })
     .listen(port);
 
-const OAuth = require('oauth');
+const OAuth = require("oauth");
 
 class ChooChooTweets {
   constructor(config) {
     this.config = config;
-    this.oauth = new OAuth.OAuth(
-      'https://api.twitter.com/oauth/request_token',
-      'https://api.twitter.com/oauth/access_token',
-      this.config.consumer_key,
-      this.config.consumer_secret,
-      '1.0A',
-      null,
-      'HMAC-SHA1'
-    );
+    this.oauth = new OAuth.OAuth("https://api.twitter.com/oauth/request_token", "https://api.twitter.com/oauth/access_token", this.config.consumer_key, this.config.consumer_secret, "1.0A", null, "HMAC-SHA1");
   }
 
-  async initActivity(tweetHandler) {
+  async initActivity(tweetHandler, webhookURL) {
     try {
-      const NGROK_AUTH_TOKEN = this.config.ngrok;
-      if (NGROK_AUTH_TOKEN) {
-        await ngrok.authtoken(this.config.ngrok);
+      if (!webhookURL) {
+        const NGROK_AUTH_TOKEN = this.config.ngrok;
+        if (NGROK_AUTH_TOKEN) {
+          await ngrok.authtoken(this.config.ngrok);
+        }
+        const url = await ngrok.connect(PORT);
+        webhookURL = `${url}/standalone-server/webhook`;
       }
-      const url = await ngrok.connect(PORT);
-      const webhookURL = `${url}/standalone-server/webhook`;
       const server = startServer(PORT, this.config, tweetHandler);
       const webhook = new Autohook(this.config);
       await webhook.removeWebhooks();
 
       await webhook.start(webhookURL);
+      console.log(this.config);
       await webhook.subscribe({
         oauth_token: this.config.token,
         oauth_token_secret: this.config.token_secret,
@@ -101,20 +96,20 @@ class ChooChooTweets {
         text: alt_text,
       },
     };
-    const url = 'https://upload.twitter.com/1.1/media/metadata/create.json';
+    const url = "https://upload.twitter.com/1.1/media/metadata/create.json";
     return await this.post(url, postBody);
   }
 
   async search(keywords) {
     console.log(keywords);
-    keywords = keywords.replace('#', '%23');
+    keywords = keywords.replace("#", "%23");
     const url = `https://api.twitter.com/1.1/search/tweets.json?q=${keywords}`;
     console.log(url);
     return await this.get(url);
   }
 
   async upload(b64content) {
-    const url = 'https://upload.twitter.com/1.1/media/upload.json';
+    const url = "https://upload.twitter.com/1.1/media/upload.json";
     const postBody = {
       media_data: b64content,
     };
@@ -122,13 +117,13 @@ class ChooChooTweets {
   }
 
   async tweet(status, media_ids) {
-    const url = 'https://api.twitter.com/1.1/statuses/update.json';
+    const url = "https://api.twitter.com/1.1/statuses/update.json";
     const postBody = { status, media_ids };
     return await this.post(url, postBody);
   }
 
   async reply(in_reply_to_status_id, status, media_ids) {
-    const url = 'https://api.twitter.com/1.1/statuses/update.json';
+    const url = "https://api.twitter.com/1.1/statuses/update.json";
     const postBody = { in_reply_to_status_id, status, media_ids };
     postBody.auto_populate_reply_metadata = true;
     return await this.post(url, postBody);
@@ -159,7 +154,7 @@ class ChooChooTweets {
         this.config.token, // oauth_token (user access token)
         this.config.token_secret, // oauth_secret (user secret)
         postBody, // post body
-        '', // post content type ?
+        "", // post content type ?
         function (err, data, res) {
           if (err) {
             console.error(err);
