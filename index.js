@@ -106,9 +106,14 @@ class ChooChooTweets {
   }
 
   async search(keywords) {
-    console.log(keywords);
-    keywords = keywords.replace('#', '%23');
-    const url = `https://api.twitter.com/1.1/search/tweets.json?q=${keywords}`;
+    let url = `https://api.twitter.com/1.1/search/tweets.json`;
+    if (keywords.charAt(0) === '?') {
+      url += `${keywords}&tweet_mode=extended`;
+    } else {
+      keywords = keywords.replace('#', '%23');
+      // default to extended?
+      url += `?q=${keywords}&tweet_mode=extended`;
+    }
     console.log(url);
     return await this.get(url);
   }
