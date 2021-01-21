@@ -71,19 +71,22 @@ class ChooChooTweets {
     );
   }
 
-  async initActivity(tweetHandler) {
+  async initActivity(tweetHandler, webhookURL) {
     try {
-      const NGROK_AUTH_TOKEN = this.config.ngrok;
-      if (NGROK_AUTH_TOKEN) {
-        await ngrok.authtoken(this.config.ngrok);
+      if (!webhookURL) {
+        const NGROK_AUTH_TOKEN = this.config.ngrok;
+        if (NGROK_AUTH_TOKEN) {
+          await ngrok.authtoken(this.config.ngrok);
+        }
+        const url = await ngrok.connect(PORT);
+        webhookURL = `${url}/standalone-server/webhook`;
       }
-      const url = await ngrok.connect(PORT);
-      const webhookURL = `${url}/standalone-server/webhook`;
       const server = startServer(PORT, this.config, tweetHandler);
       const webhook = new Autohook(this.config);
       await webhook.removeWebhooks();
 
       await webhook.start(webhookURL);
+      console.log(this.config);
       await webhook.subscribe({
         oauth_token: this.config.token,
         oauth_token_secret: this.config.token_secret,
